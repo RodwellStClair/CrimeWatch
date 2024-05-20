@@ -1,0 +1,26 @@
+.overlay_container {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 10px 0px;
+  background-color: rgba(255, 255, 255, 0.5);
+  padding: 0px 10px;
+  border-radius: 10px;
+  border: 1px solid #000;
+  width: max-content;
+  height: max-content;
+
+}
+
+.overlay_item {
+  display: flex;
+  flex-direction: row;
+  gap: 60px 0px;
+  color: #000;
+}
+
+.overlay_item p {
+  margin: 0;
+  color: #000;
+  font-weight: bold;
+}
