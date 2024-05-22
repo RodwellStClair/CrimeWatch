@@ -14,9 +14,6 @@ function CrimeMapDetails() {
   const [startSearch, setStartSearch] = useState(false);
   const coordinates = useSelector((state) => state.search.coordinates);
   const crimeMonthlySummary = useSelector((state) => state.crimeMonthlySummary.data);
-  
-
-
   const calledOnce = useRef(false);
 
   useEffect(() => {

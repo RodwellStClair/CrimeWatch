@@ -1,37 +1,50 @@
 from dateutil.relativedelta import relativedelta
 from rest_framework.response import Response
 from rest_framework import status
-from django.contrib.gis.geos import Point
-from django.contrib.gis.db.models.functions import Distance
 import datetime
 from . import models
 import requests
+import random
+
 
 def fetch_and_create_reports(lat, lng, current_user_location):
     url = f"https://data.police.uk/api/crimes-street/all-crime?lat={lat}&lng={lng}"
     res = requests.get(url)
+
     if res.status_code == 200:
         body = res.json()
         try:
-            print('Creating coordinates', current_user_location)
+            print("Creating coordinates", current_user_location)
             coordinate, created = models.Coordinates.objects.get_or_create(
                 user_location=current_user_location
             )
-            if coordinate.user_location :
-                print(
-                    "Coordinates created in database"
-                )
+            if coordinate.user_location:
+                print("Coordinates created in database")
                 response_reports = []
-                print('Creating reports')
+                print("Creating reports")
+
+                seen_crimes = set()
+
                 for item in body:
+                    category = item["category"]
+                    latitude = float(item["location"]["latitude"])
+                    longitude = float(item["location"]["longitude"])
+                    unique_key = (category, latitude, longitude)
+
+                    # Add a small offset if the crime has already been seen
+                    while unique_key in seen_crimes:
+                        latitude += random.uniform(-0.0001, 0.0001)
+                        longitude += random.uniform(-0.0001, 0.0001)
+                        unique_key = (category, latitude, longitude)
+
+                    seen_crimes.add(unique_key)
+
                     report = models.Report(
-                        category=item["category"],
+                        category=category,
                         location_type=item["location_type"],
-                        location=models.Coordinates.objects.get(
-                            user_location=current_user_location
-                        ),
-                        latitude=item["location"]["latitude"],
-                        longitude=item["location"]["longitude"],
+                        location=coordinate,
+                        latitude=latitude,
+                        longitude=longitude,
                         street=item["location"]["street"]["name"],
                         context=item["context"],
                         outcome_status=item["outcome_status"],
@@ -42,7 +55,8 @@ def fetch_and_create_reports(lat, lng, current_user_location):
                     )
                     response_reports.append(report.to_dict())
                     report.save()
-                print('Reports created in database')
+
+                print("Reports created in database")
                 return Response(response_reports, status=status.HTTP_200_OK)
         except Exception as e:
             print("Database error:", e)
@@ -52,15 +66,17 @@ def fetch_and_create_reports(lat, lng, current_user_location):
     else:
         api_response = res.json()
         return Response(
-            {"error": "Failed to fetch data from external API",
-             "api_response": api_response
-             }, status=res.status_code
+            {
+                "error": "Failed to fetch data from external API",
+                "api_response": api_response,
+            },
+            status=res.status_code,
         )
 
 
 def fetch_and_create_crime_data(lat, lng, current_user_location):
     crime_counts = get_crime_counts(lat, lng)
-    
+
     if not crime_counts:
         return Response(
             {"error": "No crime data available"}, status=status.HTTP_404_NOT_FOUND
@@ -86,7 +102,6 @@ def fetch_and_create_crime_data(lat, lng, current_user_location):
         print('Monthly summaries created in database')
         return Response(response_monthly_summary, status=status.HTTP_200_OK)
 
-
 def get_crime_counts(lat, lng):
     url = f"https://data.police.uk/api/crimes-street/all-crime?lat={lat}&lng={lng}"
     current_date = datetime.datetime.now()
@@ -94,21 +109,28 @@ def get_crime_counts(lat, lng):
     months_list = [date.strftime("%Y-%m") for date in months_list]
 
     crime_data = {}
+    seen_crimes = set()
 
     try:
         for month in months_list:
             url_with_date = f"{url}&date={month}"
             response = requests.get(url_with_date)
             if response.status_code == 200:
-                crime_data[month] = {}
-                crime_data[month]['categories'] = []
                 monthly_data = response.json()
+                if month not in crime_data:
+                    crime_data[month] = {"categories": []}
+
                 category_count = {}
                 for item in monthly_data:
-                    if item["month"] == month:
-                        category_count[item["category"]] = (
-                            category_count.get(item["category"], 0) + 1
-                        )
+                    category = item["category"]
+                    latitude = item["location"]["latitude"]
+                    longitude = item["location"]["longitude"]
+                    unique_key = (category, latitude, longitude)
+
+                    if unique_key not in seen_crimes:
+                        seen_crimes.add(unique_key)
+                        category_count[category] = category_count.get(category, 0) + 1
+
                 for category, count in category_count.items():
                     crime_data[month]["categories"].append(
                         {"category": category, "count": count}

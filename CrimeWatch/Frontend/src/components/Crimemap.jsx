@@ -31,9 +31,6 @@ const CrimeMap = () => {
   const crimedata = useSelector((state) => state.crimedata.data)
   const [overlayVisible, setOverlayVisible] = useState(false);
 
-
-
-
   function handleClick() {
     const coords = mapRef.current.getView().getCenter();
     setClickedCoords(coords);
@@ -52,7 +49,7 @@ const CrimeMap = () => {
         ],
         view: new View({
           center: clickedCoords || fromLonLat([-0.1278, 51.5074]),
-          zoom: 15
+          zoom: 12
         })
       });
 
@@ -65,11 +62,12 @@ const CrimeMap = () => {
       mapRef.current.addOverlay(overlay);
     }
 
+
     const addPointsFromJson = async () => {
       const features = await crimedata.map(point => {
         const color = getColor(point.category);
         const feature = new Feature({
-          geometry: new Point(fromLonLat([point.longitude, point.latitude])),
+          geometry: new Point(fromLonLat([Number(point.longitude), Number(point.latitude)])),
           name: point.category
         });
 
@@ -96,11 +94,15 @@ const CrimeMap = () => {
       });
 
       mapRef.current.addLayer(vectorLayer);
+      const extent = vectorSource.getExtent();
+      mapRef.current.getView().fit(extent, { padding: [50, 50, 50, 50] });
     };
 
     if (crimedata) {
       addPointsFromJson();
     }
+
+    mapRef.current.renderSync();
 
     mapRef.current.on('singleclick', (event) => {
       let featureFound = false;
@@ -150,8 +152,9 @@ const CrimeMap = () => {
           setOverlayVisible(true);
           featureFound = true;
         } else {
-         
+
           overlayContainerElement.current.innerHTML = `<h1>No data available</h1>`;
+
         }
 
         setClickedCoords(coords);

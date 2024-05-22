@@ -70,6 +70,7 @@ const chartconfig = {
         },
         type: 'time',
         time: {
+          tooltipFormat: 'MMM YYYY',
           unit: 'month',
         },
         display: true,

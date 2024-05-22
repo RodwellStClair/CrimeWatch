@@ -96,9 +96,7 @@ def get_monthly_crime_summary(request, lat, lng):
             if monthlysummary:
                 print('monthly summary found')
                 return Response(
-                {
-                 monthlysummary,
-                },
+                monthlysummary,
                 status=status.HTTP_200_OK
             )
             else:

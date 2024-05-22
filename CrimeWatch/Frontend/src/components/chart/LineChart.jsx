@@ -1,42 +1,35 @@
+/* eslint-disable react/prop-types */
 import { Line } from "react-chartjs-2";
 import 'chartjs-adapter-dayjs-4/dist/chartjs-adapter-dayjs-4.esm';
 import chartconfig from './barChartConfig';
 import getColor from "../../utilities/getColor";
 
-function LineChart(item) {
-  chartconfig.data.datasets = [];
+function LineChart( {crimeMonthlySummary}) {
+  const datasets = {};
 
-  function getCategories(item) {
-    const datasets = {}
-    item.crimeMonthlySummary?.forEach(item => {
-      for (const items of item.crime_data.categories) {
-        if (datasets[items.category]) {
-          datasets[items.category].push(items.count)
-        } else {
-          datasets[items.category] = [items.count]
-        }
+  crimeMonthlySummary.forEach(item => {
+    item.crime_data.categories.forEach(category => {
+      if (!datasets[category.category]) {
+        datasets[category.category] = Array(crimeMonthlySummary.length).fill(0);
       }
-    })
-    return datasets
-  }
+      const monthIndex = crimeMonthlySummary.findIndex(data => data.month === item.month);
+      datasets[category.category][monthIndex] = category.count;
+    });
+  });
 
-  chartconfig.data.labels = item.crimeMonthlySummary?.map(item => item.month);
-  const categories = getCategories(item)
+  chartconfig.data.labels = crimeMonthlySummary.map((item) => item.month);
+  chartconfig.data.datasets = Object.keys(datasets).map((category) => ({
+    label: category,
+    data: datasets[category],
+    backgroundColor: getColor(category),
+    borderColor: getColor(category),
+    borderWidth: 2,
+  }));
 
-  for (const category in categories) {
 
-    chartconfig.data.datasets.push({
-      label: category,
-      data: categories[category],
-      backgroundColor: getColor(category),
-      borderColor: getColor(category),
-      borderWidth: 2,
-    })
-  }
 
-  return <Line data={chartconfig.data}
-    options={chartconfig.options}
-  />;
+
+  return <Line data={chartconfig.data} options={chartconfig.options} />;
 }
 
 export default LineChart;
