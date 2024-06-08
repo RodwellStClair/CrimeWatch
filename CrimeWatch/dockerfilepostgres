@@ -1,0 +1,14 @@
+# Use the official PostgreSQL image with PostGIS extension
+FROM postgis/postgis:13-3.1
+
+# Set environment variables
+ENV POSTGRES_DB=crimedatadb
+ENV POSTGRES_USER=postgres
+ENV POSTGRES_PASSWORD=2525
+
+# Expose the PostgreSQL port
+EXPOSE 5432
+
+# Set the default command to run when starting the container
+CMD ["postgres"]
+
