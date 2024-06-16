@@ -11,6 +11,12 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
 from pathlib import Path
+import os
+import dj_database_url
+import environ
+
+env = environ.Env()
+environ.Env.read_env()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -23,10 +29,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-a-@8*gy0z+5av4k^x!&9)3vnh5!-y=t5=$8y!#@)(!nyxa4lpz'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = env('DEBUG', default=False)
+# print(DEBUG)
 
-ALLOWED_HOSTS = []
-
+host = env("HOST", default=None)
+ALLOWED_HOSTS = [host] if host else []  # "crimewatch592-1cb4c665b960.herokuapp.com"
+print(ALLOWED_HOSTS)
 ADMIN_ENABLED = False
 
 # Application definition
@@ -45,8 +53,8 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
-    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
     #'django.contrib.sessions.middleware.SessionMiddleware',
     "django.middleware.common.CommonMiddleware",
@@ -55,7 +63,7 @@ MIDDLEWARE = [
     #'django.contrib.messages.middleware.MessageMiddleware',
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
-
+CSRF_TRUSTED_ORIGINS = ["https://crimewatch592-1cb4c665b960.herokuapp.com"]
 REST_FRAMEWORK = {
     #   "DEFAULT_RENDERER_CLASSES": ("rest_framework.renderers.JSONRenderer",),
     "DEFAULT_AUTHENTICATION_CLASSES": [],
@@ -86,36 +94,32 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'CrimeWatch.wsgi.application'
 
-#GDAL_LIBRARY_PATH = r'C:\OSGeo4W\bin\gdal308.dll'
-#GEOS_LIBRARY_PATH = r'C:\OSGeo4W\bin\geos_c.dll'
+# GDAL_LIBRARY_PATH = r'C:\OSGeo4W\bin\gdal308.dll'
+# GEOS_LIBRARY_PATH = r'C:\OSGeo4W\bin\geos_c.dll'
 
 
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
-# setting for postgresql database for development
-""" DATABASES = {
-    'default': {
-        "ENGINE": "django.contrib.gis.db.backends.postgis",
-        "NAME": "crimedatadb",
-        "USER": "postgres",
-        "PASSWORD": "2525",
-        "HOST": "localhost",
-        "PORT": "5432",
+if "DATABASE_URL" in os.environ:
+    DATABASES = {
+        "default": dj_database_url.config(
+            engine="django.contrib.gis.db.backends.postgis",
+            conn_max_age=600,
+            ssl_require=True,
+        )
     }
-} """
-
-# setting for postgresql database for production
-DATABASES = {
-    "default": {
-        "ENGINE": "django.contrib.gis.db.backends.postgis",
-        "NAME": "crimedatadb",
-        "USER": "postgres",
-        "PASSWORD": "2525",
-        "HOST":  "db",
-        "PORT": "5432",
+else:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.contrib.gis.db.backends.postgis",
+            "NAME": env("DB_NAME"),
+            "USER": env("DB_USER"),
+            "PASSWORD": env("DB_PASSWORD"),
+            "HOST": env("DB_HOST" ),
+            "PORT": env("DB_PORT"),
+        }
     }
-}
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
