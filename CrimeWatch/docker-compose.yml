@@ -5,25 +5,27 @@ services:
     build:
       context: .
       dockerfile: dockerfilepostgres
-    container_name: crimewatch_db
+    container_name: ukpdcrimewatch_db
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
       - app-network
+    image: rodwell592/ukpdcrimewatch:db-latest
 
   web:
     build: .
     command: >
-      sh -c "python manage.py makemigrations && python manage.py migrate && gunicorn CrimeWatch.wsgi:application --bind 0.0.0.0:8000"
-    container_name: CrimeWatch
+      sh -c "python manage.py makemigrations && python manage.py migrate && gunicorn CrimeWatch.wsgi:application --bind 0.0.0.0:8000 --timeout 600"
+    container_name: ukpdcrimewatch_web
     volumes:
       - .:/code
     ports:
-      - "8000:8000"
+      - "127.0.0.1:8000:8000"
     depends_on:
       - db
     networks:
       - app-network
+    image: rodwell592/ukpdcrimewatch:web-latest
 
 networks:
   app-network:

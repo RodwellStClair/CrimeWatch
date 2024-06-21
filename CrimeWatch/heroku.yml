@@ -3,4 +3,4 @@ build:
     web: Dockerfile
 
 run:
-  web: gunicorn CrimeWatch.wsgi:application --bind 0.0.0.0:$PORT
+  web: gunicorn CrimeWatch.wsgi:application --timeout 400 --bind 0.0.0.0:$PORT

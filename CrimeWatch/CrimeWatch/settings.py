@@ -17,7 +17,6 @@ import environ
 
 env = environ.Env()
 environ.Env.read_env()
-
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -29,21 +28,16 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-a-@8*gy0z+5av4k^x!&9)3vnh5!-y=t5=$8y!#@)(!nyxa4lpz'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = env('DEBUG', default=False)
-# print(DEBUG)
+DEBUG = env("DEBUG", default=True)
 
 host = env("HOST", default=None)
-ALLOWED_HOSTS = [host] if host else []  # "crimewatch592-1cb4c665b960.herokuapp.com"
-print(ALLOWED_HOSTS)
+ALLOWED_HOSTS = [host] if host else []
+
 ADMIN_ENABLED = False
 
 # Application definition
 
 INSTALLED_APPS = [
-    #'django.contrib.admin',
-    #'django.contrib.auth',
-    #'django.contrib.sessions',
-    #'django.contrib.messages',
     "django.contrib.staticfiles",
     "django.contrib.contenttypes",
     "django.contrib.gis",
@@ -53,19 +47,15 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
-    "django.middleware.security.SecurityMiddleware",
     "corsheaders.middleware.CorsMiddleware",
+    "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
-    #'django.contrib.sessions.middleware.SessionMiddleware',
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
-    #'django.contrib.auth.middleware.AuthenticationMiddleware',
-    #'django.contrib.messages.middleware.MessageMiddleware',
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
-CSRF_TRUSTED_ORIGINS = ["https://crimewatch592-1cb4c665b960.herokuapp.com"]
+
 REST_FRAMEWORK = {
-    #   "DEFAULT_RENDERER_CLASSES": ("rest_framework.renderers.JSONRenderer",),
     "DEFAULT_AUTHENTICATION_CLASSES": [],
     "DEFAULT_PERMISSION_CLASSES": [],
     'UNAUTHENTICATED_USER': None,
@@ -84,8 +74,6 @@ TEMPLATES = [
           'context_processors': [
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
-         #      'django.contrib.auth.context_processors.auth',
-         #       'django.contrib.messages.context_processors.messages',
            ],
         },
 
@@ -101,6 +89,7 @@ WSGI_APPLICATION = 'CrimeWatch.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
+# setting for postgresql database for development
 if "DATABASE_URL" in os.environ:
     DATABASES = {
         "default": dj_database_url.config(
@@ -113,31 +102,13 @@ else:
     DATABASES = {
         "default": {
             "ENGINE": "django.contrib.gis.db.backends.postgis",
-            "NAME": env("DB_NAME"),
-            "USER": env("DB_USER"),
-            "PASSWORD": env("DB_PASSWORD"),
-            "HOST": env("DB_HOST" ),
-            "PORT": env("DB_PORT"),
+            "NAME": "crimedatadb",
+            "USER": "postgres",
+            "PASSWORD": env("POSTGRES_PASSWORD"),
+            "HOST": env("DB_HOST", default="localhost"),
+            "PORT": "5432",
         }
     }
-
-# Password validation
-# https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
-
-""" AUTH_PASSWORD_VALIDATORS = [
-    {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-    },
-] """
 
 
 # Internationalization
