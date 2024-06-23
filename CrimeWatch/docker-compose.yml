@@ -10,7 +10,7 @@ services:
       - postgres_data:/var/lib/postgresql/data
     networks:
       - app-network
-    image: rodwell592/ukpdcrimewatch:db-latest
+    #image: rodwell592/ukpdcrimewatch:db-latest
 
   web:
     build: .
@@ -25,7 +25,7 @@ services:
       - db
     networks:
       - app-network
-    image: rodwell592/ukpdcrimewatch:web-latest
+    #image: rodwell592/ukpdcrimewatch:web-latest
 
 networks:
   app-network:

@@ -48,6 +48,8 @@ These steps should get the CrimeWatch Demo application running on your local mac
 - Django REST Framework
 - OpenLayers
 - Chart.js
+- Docker
+- Heroku 
 
 ## App Preview (screenshots)
 ### Landing Page
