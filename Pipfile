@@ -26,7 +26,7 @@ sqlparse = "==0.5.0"
 tzdata = "==2024.1"
 urllib3 = "==2.2.1"
 virtualenv = "==20.26.1"
-gdal = {file = "..\\..\\Downloads\\GDAL-3.8.4-cp312-cp312-win_amd64.whl"}
+gdal = {file = "./CrimeWatch/GDAL-3.8.4-cp312-cp312-win_amd64.whl"}
 whitenoise = "*"
 dj-database-url = "*"
 

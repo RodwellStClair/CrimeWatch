@@ -7,6 +7,7 @@ This file serves as the main documentation for the CrimeWatch project. It provid
 
 ## Table of Contents
 - [Overview](#overview)
+- [Demo](#Demo)
 - [Installation](#installation)
 - [Usage](#usage)
 - [Tech Stack](#tech-stack)
@@ -15,6 +16,10 @@ This file serves as the main documentation for the CrimeWatch project. It provid
 
 ## Overview
 CrimeWatch is a web application that allows users to view crime data for specific locations. It uses the UK Police API to fetch crime reports and displays them on an interactive map.
+## Demo
+A demonstration of this application is available for quick access via the Heroku hosting platform. On this platform, the app runs on a eco dyno which has limitations of cold starts resulting in a slow startup of the application upon first use and its routers have roughly a 30 seconds request timeout resulting in the appication producing a 503 error when application is processing large data sets. To avoid timeout errors try searching areas outside of highly populated cities.
+    works are ongoing to optimise the processing capability of application and heroku dynos to reduce  and avoid impacts of heroku router timeouts.
+    view application at [UKPDCrimewatch](https://ukpdcrimewatch-706f25134503.herokuapp.com/)
 
 ## Installation and Usage
 To install the dependencies for this project, follow these steps:
@@ -40,6 +45,32 @@ To install the dependencies for this project, follow these steps:
 
 These steps should get the CrimeWatch Demo application running on your local machine using Docker, ensuring that all dependencies are correctly handled by the containerized environment.
 
+##### Using Django with pipenv
+this project leverages the processing poswer of  geospatial libraries (GEOS, PROJ, GDAL and PostGIS) avaiable with geodjango, therefore to successfully run this application on your local machine outside of a container you need to install these libraries on your local system: please follow the instructions available here [Django's official site](https://docs.djangoproject.com/en/5.0/ref/contrib/gis/install/geolibs/): after doing this then continue with the instructions below:
+1. if you do not have pipenv installed; run the following command:
+```pip install pipenv```
+2. In terminal Go to root directory and create a virtual environment run the command:
+```pipenv install```
+3. Activate the virtual environment created by pipenv, by running the command:
+```pipenv shell```
+4. Go to CrimeWatch\CrimeWatch\settings.py and uncomment lines 85 and 86 which are accessing the location of the  gdal308.dll and geos_c.dll files
+5. Create .env file for local database: create the following:
+  --POSTGRES_PASSWORD=yourpassword
+  --SECRET_KEY=yoursecretkey
+
+6. Create project models in PostgreSql database, please ensure your PostgreSQL database is set up and running, then make migrationsfollowed by applying migrations by running the commands:
+```
+   python manage.py makemigrations
+   python manage.py migrate
+   ```
+
+7. Collect static files by running the following command:
+``` python manage.py collectstatic --noinput  ```
+
+8. Start the Django development server, by running the following command:
+```python manage.py runserver ```
+9. Accessing the Application: by opening the  web browser and navigating to http://127.0.0.1:8000 should provide  access the demo CrimeWatch application.
+
 ## Tech Stack
 - CSS3
 - React
@@ -49,7 +80,7 @@ These steps should get the CrimeWatch Demo application running on your local mac
 - OpenLayers
 - Chart.js
 - Docker
-- Heroku 
+- Heroku
 
 ## App Preview (screenshots)
 ### Landing Page
