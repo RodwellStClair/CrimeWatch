@@ -1,3 +1,9 @@
 __pycache__
+*/migrations/*.py
+*/migrations/*.pyc
+.mypy_cache/
 *.pyc
+*.env
+.venv
 env/
+venv/
